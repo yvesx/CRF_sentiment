@@ -24,7 +24,7 @@ Evaluation
 Acknowledgements
 ================
 
-* [Dataset](https://raw.github.com/yvesx/CRF_sentiment/master/data/CRF_long_data.xlsx) contains long, complicated sentences from [other](http://nlp.stanford.edu/sentiment/index.html) [projects](http://cucis.ece.northwestern.edu/projects/Social/).
+* [Dataset](https://raw.github.com/yvesx/CRF_sentiment/master/data/CRF_long_data.xlsx) contains long, complicated sentences from [Stanford](http://nlp.stanford.edu/sentiment/index.html) & [Northwestern](http://cucis.ece.northwestern.edu/projects/Social/).
 * [CRF++](http://crfpp.googlecode.com/svn/trunk/doc/index.html) is a great tool.
 
 Collaborators: @kpzhang @hixiaoxi
