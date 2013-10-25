@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+# works for string, ints, and floats(like 1.0,0.0)
 def levenshtein(a,b):
     "Calculates the Levenshtein distance between a and b."
     n, m = len(a), len(b)
