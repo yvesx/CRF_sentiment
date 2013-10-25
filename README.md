@@ -20,6 +20,12 @@ Evaluation
 ==========
 
 
+How It Works
+============
+* ``python ./prepare.py`` check the parameters, paths, etc.
+* ``python ./generate_template.py`` if necessary.
+* ``bash ./run_crf.sh`` modify ``run_crf.sh`` if necessary.
+
 
 Acknowledgements
 ================
