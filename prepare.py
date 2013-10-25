@@ -84,7 +84,8 @@ def init():
     print("LSI trained")
     readTypedDependency("./data/td")
     getFeatures()
-    printCRFtrain("./data/CRF_train")
+    printCRFtrain("./data/CRF_train_con")
+    os.system("sed 's/98989898.*/ /' ./data/CRF_train_con > ./data/CRF_train")
     # need to add empty lines here due to document
 
 def add_dict(language, path):
@@ -102,7 +103,7 @@ def readTypedDependency(fname):
 def printCRFtrain(fname):
     global CRF_input
     a = numpy.asarray(CRF_input)
-    numpy.savetxt(fname, a, delimiter="\t",fmt='%d') # just signed integer
+    numpy.savetxt(fname, a, delimiter="\t",fmt="%d") # just signed integer
 def baselineChunker():
     global content
     global labels
@@ -155,10 +156,15 @@ def getFeatures():
 
         #CRF_input.append([i])
         # comparative feature1
-        POS = pos_tag(word_tokenize(content[i].encode('utf-8')))
+        try:
+            POS = pos_tag(word_tokenize(content[i].encode('utf-8',errors='ignore')))
+        except:
+            POS = []
         word_com1 = sum([1 for part in POS if part[1] in comparative_POS])
-
-        sentence = content[i].lower().encode('utf-8')
+        try:
+            sentence = content[i].lower().encode('utf-8',errors='ignore')
+        except:
+            sentence = content[i].lower()
         sentence_rip = rip(sentence)
         array = set(word_tokenize(sentence))
         array_rip = set(word_tokenize(sentence_rip))
@@ -185,7 +191,7 @@ def getFeatures():
             if item in sentence:
                 emoc_pos += 1
         
-        for item in dict_match.neg_word_hash:
+        for item in dict_match.neg_emoc_hash:
             if item in sentence:
                 emoc_neg += 1
         # count pos/neg words
@@ -231,8 +237,8 @@ def getFeatures():
             mid = conj_idx[len(conj_idx)/2]
             pos_idx = [idx for idx,part in enumerate(POS) if part[0].lower() in pos_set]
             neg_idx = [idx for idx,part in enumerate(POS) if part[0].lower() in neg_set ]
-            pos_pos = sum([1 if i > mid else -1 for i in pos_idx])
-            neg_pos = sum([1 if i > mid else -1 for i in neg_idx])
+            pos_pos = sum([1 if ii > mid else -1 for ii in pos_idx])
+            neg_pos = sum([1 if ii > mid else -1 for ii in neg_idx])
         else:
             pos_idx = []
             neg_idx = []
@@ -249,20 +255,28 @@ def getFeatures():
         print(content[i], file=f)
         f.close()
         td = os.popen(stanford_parser_exec).read()
-        dobj_c  = td.count("dobj")
-        nsubj_c = td.count("nsubj")
+        dobj_c  = max(4,td.count("dobj"))
+        nsubj_c = max(4,td.count("nsubj"))
         # similarity features
         if i > 0:
-            cos_pre = levenshtein(content[i],content[i-1])
-            lsi_pre = levenshtein(list(mylsa.A[:,i]), list(mylsa.A[:,i-1]))
-        if i < len(content)-1:
-            cos_nex = levenshtein(content[i],content[i+1])
-            lsi_nex = levenshtein(list(mylsa.A[:,i]), list(mylsa.A[:,i+1]))
+            cos_pre = levenshtein(content[i],content[i-1])/10
+            lsi_pre = levenshtein(list(mylsa.A[:,i]), list(mylsa.A[:,i-1]))/4
+        if i < (len(content)-1):
+            cos_nex = levenshtein(content[i],content[i+1])/10
+            lsi_nex = levenshtein(list(mylsa.A[:,i]), list(mylsa.A[:,i+1]))/4
 
+        if (i in documentIndex) and (i > 0):
+            CRF_input.append([98989898,emoc_pos,emoc_neg,word_pos,word_neg,word_nega,
+                            word_com1,word_com2,word_com3,conj_total,
+                            conj_sub,conj_coor,conj_corr,syn_pos,syn_com,
+                            pos_pos,neg_pos,nega_pos1,nega_pos2,cos_pre,
+                            lsi_pre,cos_nex,lsi_nex,dobj_c,nsubj_c,label_conv[labels[i]]])
+            # will be replaced by newline in CRF++ format.
         CRF_input.append([i,emoc_pos,emoc_neg,word_pos,word_neg,word_nega,
                             word_com1,word_com2,word_com3,conj_total,
                             conj_sub,conj_coor,conj_corr,syn_pos,syn_com,
                             pos_pos,neg_pos,nega_pos1,nega_pos2,cos_pre,
                             lsi_pre,cos_nex,lsi_nex,dobj_c,nsubj_c,label_conv[labels[i]]]) # so the array is integer
+
 if __name__=="__main__":
     init()

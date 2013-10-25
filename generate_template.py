@@ -9,7 +9,7 @@ templates = ["#Unigram"]
 
 vertical_locality = [-2,-1,0,1,2]
 for i in vertical_locality:
-	for j in xrange(26):
+	for j in xrange(25):
 		if j == 0:
 			continue
 		templates.append("U%d%d:%s[%d,%d]"%(i,j,'%x',i,j))
